@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Query Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input, button { padding: 8px; margin: 5px 0; width: 100%; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>SQL Query Dashboard</h1>
+    <input type="text" id="queryInput" placeholder="Enter your query here">
+    <button onclick="sendQuery()">Run Query</button>
+
+    <h2>Result:</h2>
+    <pre id="result"></pre>
+
+    <script>
+        async function sendQuery() {
+            const query = document.getElementById('queryInput').value;
+            const response = await fetch('/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await response.json();
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
