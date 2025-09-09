@@ -17,14 +17,9 @@ def run_query(payload: dict):
     output = query_pipeline(user_query)
 
     if isinstance(output, dict) and "error" in output:
-        return output
+        return {"summary": output.get("summary", "An error occurred while processing the query.")}
 
     df, sql_text, raw_llm, retrieved_ctx, summary = output
 
-    # Check if df is a DataFrame
-    if isinstance(df, pd.DataFrame):
-        result = df.to_dict(orient="records")
-        return {"result": result, "sql": sql_text, "raw_llm": raw_llm, "retrieved": retrieved_ctx, "summary": summary}
-    else:
-        # SQL failed or returned None, send error
-        return {"summary": summary}
+    # Return only the summary
+    return {"summary": summary}
