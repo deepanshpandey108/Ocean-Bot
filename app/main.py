@@ -17,9 +17,13 @@ def run_query(payload: dict):
     output = query_pipeline(user_query)
 
     if isinstance(output, dict) and "error" in output:
-        return {"summary": output.get("summary", "An error occurred while processing the query.")}
+        summary = output.get("summary", "An error occurred while processing the query.")
+    else:
+        df, sql_text, raw_llm, retrieved_ctx, summary = output
 
-    df, sql_text, raw_llm, retrieved_ctx, summary = output
+    # Convert summary newlines to HTML paragraphs
+    paragraphs = summary.split("\n\n")
+    formatted_summary = "".join(f"<p>{p}</p>" for p in paragraphs if p.strip())
 
-    # Return only the summary
-    return {"summary": summary}
+    # Return only the formatted summary
+    return {"summary": formatted_summary}
