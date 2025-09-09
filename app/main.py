@@ -27,4 +27,4 @@ def run_query(payload: dict):
         return {"result": result, "sql": sql_text, "raw_llm": raw_llm, "retrieved": retrieved_ctx, "summary": summary}
     else:
         # SQL failed or returned None, send error
-        return {"error": "Query failed", "sql": sql_text, "details": str(df), "raw_llm": raw_llm, "retrieved": retrieved_ctx, "summary": summary}
+        return {"summary": summary}
