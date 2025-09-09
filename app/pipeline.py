@@ -16,7 +16,7 @@ ID_MAP_PATH = "data/id_map.npy"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
 
 # Groq API key from environment
-GROQ_API_KEY = "Apki Groq API Key"   # <-- replace with your key
+GROQ_API_KEY = "Apki_Groq_Key"   # <-- replace with your key
 client = Groq(api_key=GROQ_API_KEY)
 
 # Connect to DuckDB
@@ -167,5 +167,4 @@ def query_pipeline(user_query: str, k: int = 5, debug: bool = False):
     except Exception as e:
         print("❌ SQL execution error:", e)
         summary = generate_summary(user_query, None, sql_text, retrieved)
-
         return None, sql_text, raw_llm_text, retrieved, summary
