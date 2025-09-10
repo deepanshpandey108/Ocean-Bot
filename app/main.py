@@ -18,12 +18,20 @@ def run_query(payload: dict):
 
     if isinstance(output, dict) and "error" in output:
         summary = output.get("summary", "An error occurred while processing the query.")
+        line_plot_base64 = None
+        step_plot_base64 = None
     else:
-        df, sql_text, raw_llm, retrieved_ctx, summary = output
+        df, sql_text, raw_llm, retrieved_ctx, summary, line_plot_base64, step_plot_base64 = output
 
     # Convert summary newlines to HTML paragraphs
     paragraphs = summary.split("\n\n")
     formatted_summary = "".join(f"<p>{p}</p>" for p in paragraphs if p.strip())
+
+    # Append plot images if available
+    if line_plot_base64:
+        formatted_summary += f'<img src="data:image/png;base64,{line_plot_base64}" alt="Line Chart" style="max-width:100%; display:block; margin:20px auto;">'
+    if step_plot_base64:
+        formatted_summary += f'<img src="data:image/png;base64,{step_plot_base64}" alt="Step Chart" style="max-width:100%; display:block; margin:20px auto;">'
 
     # Return only the formatted summary
     return {"summary": formatted_summary}
