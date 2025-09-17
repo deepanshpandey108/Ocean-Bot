@@ -6,25 +6,20 @@ import pandas as pd
 import duckdb
 from sentence_transformers import SentenceTransformer
 from groq import Groq
-
-# ✅ Fix: force Matplotlib to use non-GUI backend
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
 import io
 import base64
 
 # -------------------------
 # Configuration / connections
 # -------------------------
-DUCKDB_PATH = "app/data/argo.duckdb"
-FAISS_INDEX_PATH = "app/data/argo_faiss.index"
-ID_MAP_PATH = "app/data/id_map.npy"
+DUCKDB_PATH = "data/argo.duckdb"
+FAISS_INDEX_PATH = "data/argo_faiss.index"
+ID_MAP_PATH = "data/id_map.npy"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
 
 # Groq API key from environment
-GROQ_API_KEY = ""   # <-- replace with your key
+GROQ_API_KEY = "groq_key"   # <-- replace with your key
 client = Groq(api_key=GROQ_API_KEY)
 
 # Connect to DuckDB
@@ -214,14 +209,15 @@ def generate_plots(df, retrieved: list, user_query: str) -> tuple[str | None, st
 
 def generate_summary(user_query: str, df, sql_text: str, retrieved: list) -> str:
     system_msg = (
-        "You are a friendly AI assistant specializing in ocean data analysis, designed to communicate like a helpful bot. "
-        "Generate a clear, concise, and natural language response for the user's query. "
-        "If data is available, describe key insights, trends (e.g., changes over time, averages, min/max), "
-        "and patterns based on the data and retrieved context, using terms like 'increasing', 'decreasing', or 'stable' with supporting numbers. "
-        "If no data is returned (empty or None), summarize the retrieved context in a conversational way, focusing on relevant details like salinity, temperature, or depth, as if you found related information. "
-        "Do not speculate about missing data or suggest data issues unless explicitly indicated. "
-        "For failed queries, briefly note the lack of results and provide a summary of the retrieved context. "
-        "Keep the tone approachable, accurate, and context-appropriate."
+        "You are a friendly AI assistant specializing in ocean data analysis. "
+        "Your job is to summarize the query results with a focus on their broader significance. "
+        "Along with describing key insights, trends, and patterns (e.g., changes over time, averages, min/max), "
+        "always highlight what these trends might mean for climate and marine ecosystems. "
+        "For example, discuss how warming waters affect marine life and coral reefs, how salinity shifts influence ocean circulation, "
+        "or how depth-related changes reflect on climate-driven processes like stratification. "
+        "If appropriate, suggest possible contributing factors (e.g., ice melt, evaporation, El Niño, human impact) "
+        "without over-speculating. "
+        "Keep the tone approachable, accurate, and emphasize the climate and ecological implications of the observed changes."
     )
     
     if df is not None and isinstance(df, pd.DataFrame) and not df.empty:
@@ -241,14 +237,17 @@ def generate_summary(user_query: str, df, sql_text: str, retrieved: list) -> str
     )
     return response.choices[0].message.content.strip()
 
+
 def generate_generic_response(user_query: str) -> str:
     system_msg = (
-        "You are a friendly AI assistant with expertise in oceanography. "
+        "You are a friendly AI assistant with expertise in oceanography and climate science. "
         "The user has asked a generic or informational question about ocean data. "
         "Provide a clear, concise, and natural language explanation tailored to the query. "
-        "Focus on being informative, approachable, and accurate, using general knowledge about ocean data. "
-        "Do not reference specific datasets, measurements, or technical details unless explicitly relevant. "
-        "Keep the response under 300 words."
+        "Always connect the information to its broader implications for climate systems and marine ecosystems. "
+        "For example, explain how changes in salinity, temperature, or depth can affect ocean circulation, carbon storage, "
+        "marine biodiversity, or global climate stability. "
+        "Mention potential reasons for such changes (e.g., ice melt, warming, freshwater inflow, currents, atmospheric forcing). "
+        "Keep the response under 200 words, engaging, accurate, and impact-focused."
     )
     
     response = client.chat.completions.create(
